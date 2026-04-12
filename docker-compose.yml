@@ -1,0 +1,30 @@
+services:
+  backend:
+    build: ./backend
+    container_name: samudra-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - SAMUDRA_FRONTEND_PORT=3000
+      - SAMUDRA_BACKEND_PORT=8000
+      - SAMUDRA_WS_TICK_RATE_MS=100
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    container_name: samudra-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
