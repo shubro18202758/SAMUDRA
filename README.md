@@ -6,7 +6,7 @@
   <br>
   <sub>🔱</sub>&ensp;PROJECT SAMUDRA&ensp;<sub>🔱</sub>
   <br>
-  <sup><sub>S</sub>hipboard <sub>A</sub>utonomous <sub>M</sub>aritime <sub>U</sub>nified <sub>D</sub>igital <sub>R</sub>eal-time <sub>A</sub>nalytics</sup>
+  <sup><sub>Shipboard</sub> <sub>Autonomous</sub> <sub>Maritime</sub> <sub>Unified</sub> <sub>Digital</sub> <sub>Real-time</sub> <sub>Analytics</sub></sup>
 </h1>
 
 <p align="center">
