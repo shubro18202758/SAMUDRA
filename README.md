@@ -295,7 +295,9 @@ The monsoon is modeled as a **finite state machine** with stochastic timing:
 
 Non-optimal vessel trim (pitch angle) increases hull resistance:
 
-$$\text{Penalty}\_{\%} = \begin{cases} 0 & |\theta_{pitch}| \leq 0.5^{\circ} \\ \min(2.5 \cdot (|\theta_{pitch}| - 0.5),\ 5.0) & |\theta_{pitch}| > 0.5^{\circ} \end{cases}$$
+$$
+\text{Penalty}_{\%} = \begin{cases} 0 & \lvert\theta_{pitch}\rvert \leq 0.5^{\circ} \\[6pt] \min\bigl(2.5 \cdot (\lvert\theta_{pitch}\rvert - 0.5),\; 5.0\bigr) & \lvert\theta_{pitch}\rvert > 0.5^{\circ} \end{cases}
+$$
 
 A 2° trim yields ~3.75% fuel penalty. A 3° trim hits the 5% ceiling.
 
