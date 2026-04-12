@@ -36,6 +36,7 @@
 </div>
 
 ---
+<img width="3199" height="1999" alt="Screenshot 2026-04-12 192747" src="https://github.com/user-attachments/assets/992bd93f-09c3-4ad4-a41b-62e4d70d0236" />
 
 ## 📋 Table of Contents
 
@@ -116,6 +117,7 @@ Speed +50% → Power +237.5% → Fuel +237.5%
 SAMUDRA's DRL agent detects when the vessel is projected to arrive early and computes an **optimal speed reduction** that achieves **Just-In-Time (JIT)** arrival — zero idle time, maximum thermal efficiency, minimum carbon footprint.
 
 ---
+<img width="3199" height="1580" alt="Screenshot 2026-04-12 192827" src="https://github.com/user-attachments/assets/b9415eca-d154-411a-8fab-a112d27da14c" />
 
 ## 🏗️ System Architecture
 
@@ -210,6 +212,7 @@ Project-SAMUDRA/
 ```
 
 ---
+<img width="3125" height="1641" alt="Screenshot 2026-04-12 192846" src="https://github.com/user-attachments/assets/225eade1-fcf1-4685-8a33-2ee274533b80" />
 
 ## 🔬 Physics Engine — First Principles
 
@@ -297,6 +300,7 @@ $$\text{Penalty}\_{\%} = \begin{cases} 0 & |\theta_{pitch}| \leq 0.5^{\circ} \\ 
 A 2° trim yields ~3.75% fuel penalty. A 3° trim hits the 5% ceiling.
 
 ---
+<img width="3126" height="1386" alt="Screenshot 2026-04-12 192905" src="https://github.com/user-attachments/assets/e1fae1d8-08b5-48b6-b4ec-8b71524be4c4" />
 
 ## 🤖 AI/ML Modules
 
@@ -446,6 +450,7 @@ Interactive noise filtering with two configurable parameters:
 Live MSE readout oscillates to show real-time reconstruction error.
 
 ---
+<img width="3124" height="1274" alt="Screenshot 2026-04-12 192955" src="https://github.com/user-attachments/assets/075c1bd7-572e-4651-bbec-74b3238e9743" />
 
 ## 🗺️ AIS & Navigation
 
