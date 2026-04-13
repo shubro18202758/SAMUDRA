@@ -278,3 +278,25 @@ class TelemetryFrame(BaseModel):
     ai_advisory_mode: bool = Field(
         True, description="True when AI PINN/DRL systems are active"
     )
+    # ---- Phase 4: 7-Gap Overhaul Frames (passthrough dicts) ----
+    sensor_integration: dict = Field(
+        default_factory=dict, description="Sensor Integration Hub output"
+    )
+    predictive_maintenance: dict = Field(
+        default_factory=dict, description="Predictive Maintenance Engine output"
+    )
+    hull_propulsion: dict = Field(
+        default_factory=dict, description="Hull Improvement & Hybrid Propulsion output"
+    )
+    blind_spots: dict = Field(
+        default_factory=dict, description="Systemic Blind Spot Detection output"
+    )
+    human_ai_collaboration: dict = Field(
+        default_factory=dict, description="Human-AI Collaboration output"
+    )
+    eexi_compliance: dict = Field(
+        default_factory=dict, description="EEXI & Enhanced CII Compliance output"
+    )
+    data_architecture: dict = Field(
+        default_factory=dict, description="Data Architecture & Quality output"
+    )

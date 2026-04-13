@@ -10,7 +10,7 @@
 </h1>
 
 <p align="center">
-  <a href="#-overview"><img src="https://img.shields.io/badge/Status-Prototype_v2.0-00ffcc?style=flat-square&labelColor=0a1428" alt="Status"/></a>
+  <a href="#-overview"><img src="https://img.shields.io/badge/Status-Prototype_v3.0-00ffcc?style=flat-square&labelColor=0a1428" alt="Status"/></a>
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Frontend-Svelte_5-FF3E00?style=flat-square&logo=svelte&logoColor=white&labelColor=0a1428" alt="Svelte"/></a>
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white&labelColor=0a1428" alt="FastAPI"/></a>
   <a href="#-tech-stack"><img src="https://img.shields.io/badge/3D_Engine-Three.js-000000?style=flat-square&logo=threedotjs&logoColor=white&labelColor=0a1428" alt="Three.js"/></a>
@@ -58,7 +58,15 @@
   - [CII Tactical Segregation (DBSCAN)](#-cii-tactical-segregation-dbscan)
   - [LSTM Anomaly Detection](#-lstm-anomaly-detection)
   - [Denoising Autoencoder Pipeline](#-denoising-autoencoder-pipeline)
-- [🗺️ AIS & Navigation](#️-ais--navigation)
+- [� Phase 4 — Gap Analysis Modules](#-phase-4--gap-analysis-modules)
+  - [Comprehensive Sensor Integration Hub](#1-comprehensive-sensor-integration-hub)
+  - [Predictive Maintenance AI/ML](#2-predictive-maintenance-aiml)
+  - [Hull Improvement & Hybrid Propulsion](#3-hull-improvement--hybrid-propulsion)
+  - [Systemic Blind Spots Detection](#4-systemic-blind-spots-detection)
+  - [Human-AI Collaboration](#5-human-ai-collaboration)
+  - [EEXI Compliance Engine](#6-eexi-compliance-engine)
+  - [Unified Data Architecture](#7-unified-data-architecture)
+- [�🗺️ AIS & Navigation](#️-ais--navigation)
 - [📊 Dashboard Pages](#-dashboard-pages)
   - [Bridge — Command Overview](#1-bridge--command-overview)
   - [Engine — Propulsion Analytics](#2-engine--propulsion-analytics)
@@ -69,7 +77,7 @@
 - [📡 WebSocket Protocol](#-websocket-protocol)
 - [🚢 Vessel Parameters](#-vessel-parameters)
 - [🏛️ IMO Compliance Framework](#️-imo-compliance-framework)
-- [📈 KPI Catalog (60+)](#-kpi-catalog-60)
+- [📈 KPI Catalog (130+)](#-kpi-catalog-130)
 - [🐳 Docker Deployment](#-docker-deployment)
 - [💻 Local Development](#-local-development)
 - [🧪 Testing Protocol — DISC 14](#-testing-protocol--disc-14)
@@ -103,6 +111,13 @@ The platform combines **first-principles naval hydrodynamics** with **cutting-ed
 | **AIS Position Tracking** | AIVDM Type 1 sentence encoding (ITU-R M.1371-5) | Waypoint interpolation |
 | **3D Hull Visualization** | Real-time pitch/roll ship model | Three.js WebGL |
 | **Geospatial Route Mapping** | 10-waypoint Arabian Sea patrol with live track | Leaflet + Haversine |
+| **Sensor Integration Hub** | 5-sensor fusion (ECDIS, EMCS, FOMS, Weather, VDR) with UKC & XTE | Multi-source correlation |
+| **Predictive Maintenance** | Component RUL forecasting with EWMA anomaly detection | MIL-STD-3034 scheduling |
+| **Hull & Hybrid Propulsion** | ISO 19030 fouling + CODLAG hybrid drive with battery management | Coating + electric motor |
+| **Systemic Blind Spots** | CUSUM drift, micro-climate, KE spike, causal disambiguation | Multi-physics ensemble |
+| **Human-AI Collaboration** | Distribution-shift detection, SHAP explainability, SOLAS overrides | Trust-calibrated advisory |
+| **EEXI Compliance Engine** | MEPC.328(76) EEXI + enhanced CII 2023-2030 + IMO DCS reporting | Regulatory calculator |
+| **Unified Data Architecture** | Pub/sub data bus, NMEA parsing, sensor registry, data quality scoring | Event-driven pipeline |
 
 ### 💡 The Problem — Sail-Fast-Then-Wait (SFTW)
 
@@ -137,11 +152,19 @@ SAMUDRA's DRL agent detects when the vessel is projected to arrive early and com
 │                    ┌──────────▼──────────────┐                       │
 │                    │  FastAPI Backend         │     Port 8000        │
 │                    │  ┌───────────────────┐  │                       │
-│                    │  │ HydrodynamicEngine │  │  ◄── Cubic Law       │
+│                    │  │ HydrodynamicEngine │  │  ◄── 20-Step Pipeline│
 │                    │  │ BiofoulingSurrogate│  │  ◄── PINN            │
 │                    │  │ DRLVoyageOptimizer │  │  ◄── PPO Agent       │
 │                    │  │ CIISegregation     │  │  ◄── DBSCAN          │
 │                    │  │ AISNavigator       │  │  ◄── NMEA 0183      │
+│                    │  │─── Phase 4 ────────│  │                       │
+│                    │  │ SensorIntegration  │  │  ◄── 5 Sensor Fusion │
+│                    │  │ PredictiveMaint.   │  │  ◄── RUL + EWMA     │
+│                    │  │ HullPropulsion     │  │  ◄── ISO 19030+CODLAG│
+│                    │  │ BlindSpots         │  │  ◄── CUSUM + Causal  │
+│                    │  │ HumanAI            │  │  ◄── SHAP + SOLAS   │
+│                    │  │ EEXICompliance     │  │  ◄── MEPC.328(76)   │
+│                    │  │ DataArchitecture   │  │  ◄── Pub/Sub Bus    │
 │                    │  └───────────────────┘  │                       │
 │                    │  Pydantic v2 Validation  │                       │
 │                    └──────────────────────────┘                       │
@@ -151,6 +174,13 @@ SAMUDRA's DRL agent detects when the vessel is projected to arrive early and com
 │     GET /api/v1/telemetry/latest   ← Last telemetry snapshot          │
 │     GET /api/v1/telemetry/history  ← Ring buffer (300 frames)         │
 │     GET /api/v1/vessel/status      ← Aggregated vessel summary        │
+│     GET /api/v1/sensors/status     ← Sensor health & integration      │
+│     GET /api/v1/maintenance/status ← Predictive maintenance schedule  │
+│     GET /api/v1/hull/status        ← Hull coating & propulsion state  │
+│     GET /api/v1/blindspots/status  ← Drift, spike, sync diagnostics  │
+│     GET /api/v1/humanai/status     ← AI confidence & explainability   │
+│     GET /api/v1/eexi/status        ← EEXI/CII/DCS compliance         │
+│     GET /api/v1/databus/status     ← Data bus & quality metrics       │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -181,12 +211,20 @@ Project-SAMUDRA/
 │       │                                 # CIISegregation, TelemetryFrame
 │       ├── 📂 physics/
 │       │   ├── 📄 __init__.py
-│       │   ├── 📄 hydrodynamics.py       # Core physics engine (Admiralty Coeff,
-│       │   │                             # Cubic Law, Monsoon FSM, thermal efficiency)
+│       │   ├── 📄 hydrodynamics.py       # Core 20-step physics engine (Admiralty Coeff,
+│       │   │                             # Cubic Law, Monsoon FSM, thermal efficiency,
+│       │   │                             # + Phase 4 gap module orchestration)
 │       │   ├── 📄 biofouling.py          # PINN hull roughness surrogate
 │       │   ├── 📄 drl_optimizer.py       # PPO voyage re-optimization agent
 │       │   ├── 📄 cii_segregation.py     # DBSCAN transit/loiter classification
-│       │   └── 📄 ais_navigation.py      # AIS AIVDM encoding + waypoint navigation
+│       │   ├── 📄 ais_navigation.py      # AIS AIVDM encoding + waypoint navigation
+│       │   ├── 📄 sensor_integration.py  # 5-sensor fusion (ECDIS, EMCS, FOMS, WX, VDR)
+│       │   ├── 📄 predictive_maintenance.py # RUL forecasting + EWMA anomaly, MIL-STD-3034
+│       │   ├── 📄 hull_propulsion.py     # ISO 19030 fouling + CODLAG hybrid propulsion
+│       │   ├── 📄 blind_spots.py         # CUSUM drift, micro-climate, KE spike, causal
+│       │   ├── 📄 human_ai.py            # Distribution-shift, SHAP, SOLAS, connectivity
+│       │   ├── 📄 eexi_compliance.py     # MEPC.328(76) EEXI + CII 2023-2030 + IMO DCS
+│       │   └── 📄 data_architecture.py   # Pub/sub bus, NMEA parser, quality scoring
 │       └── 📂 ws/
 │           ├── 📄 __init__.py
 │           └── 📄 telemetry.py           # Bidirectional WebSocket handler (4Hz)
@@ -200,14 +238,16 @@ Project-SAMUDRA/
     ├── 📄 index.html                     # SPA entry point
     └── 📂 src/
         ├── 📄 main.ts                    # Svelte mount point
-        └── 📄 App.svelte                 # Monolithic SFC (~1750 lines)
+        └── 📄 App.svelte                 # Monolithic SFC (~2200+ lines)
                                           # — Obsidian Neon design system
                                           # — 5-page SPA with F-key navigation
-                                          # — 60+ real-time KPI widgets
+                                          # — 130+ real-time KPI widgets
+                                          # — 7 Phase 4 gap module panels
                                           # — SVG gauges, sparklines, heatmaps
                                           # — Three.js 3D hull model
                                           # — Leaflet geospatial map
                                           # — Chart.js LSTM + DBSCAN charts
+                                          # — EEXI compliance grid
                                           # — Indian Coast Guard SVG emblem
 ```
 
@@ -452,6 +492,175 @@ Interactive noise filtering with two configurable parameters:
 Live MSE readout oscillates to show real-time reconstruction error.
 
 ---
+
+## 🔩 Phase 4 — Gap Analysis Modules
+
+Seven additional physics/intelligence modules were developed to close every gap identified in the **DISC 14 Problem Statement 77** analysis. Each module is a standalone Python class orchestrated by `hydrodynamics.py` as tick steps 14–20, feeding the unified telemetry frame at 4 Hz.
+
+### 1. Comprehensive Sensor Integration Hub
+
+**File:** `backend/app/physics/sensor_integration.py`
+
+Fuses data from five independent sensor suites into correlated navigational and fuel intelligence:
+
+| Sensor | Protocol | Key Outputs |
+|:---|:---:|:---|
+| **ECDIS** | IEC 61174 | Under-keel clearance (UKC), cross-track error (XTE), ENC chart corrections |
+| **EMCS** | MAN CEAS | Per-cylinder exhaust temperature, ME load balance, turbocharger RPM |
+| **FOMS** | ISO 8217 | Mass flow, density, viscosity, water content (%), fuel quality index |
+| **Weather** | WMO SYNOP | Barometric trend, humidity, visibility, localized sea-state estimate |
+| **VDR** | IEC 61996 | Voyage Data Recorder recording status, distress capsule integrity |
+
+**Computed Correlations:**
+- UKC ↔ draft ↔ displacement ↔ fuel-trim penalty
+- XTE as percentage of safe corridor width
+- Fuel quality index (0–100 composite)
+- Overall sensor health (% of sensors responding with fresh data)
+
+### 2. Predictive Maintenance AI/ML
+
+**File:** `backend/app/physics/predictive_maintenance.py`
+
+Implements MIL-STD-3034 reliability-centered maintenance with real-time anomaly detection:
+
+```
+Component Health Tiers:
+  [███████████████████] 100% — HEALTHY       (RUL > 90 days)
+  [██████████████░░░░░]  75% — WATCH         (RUL 30–90 days)
+  [█████████░░░░░░░░░░]  50% — CAUTION       (RUL 7–30 days)
+  [████░░░░░░░░░░░░░░░]  25% — CRITICAL      (RUL < 7 days)
+```
+
+- **EWMA Anomaly Detector**: Exponentially Weighted Moving Average with adaptive thresholds
+- **ComponentHealthModel**: Tracks RUL (Remaining Useful Life) per component using Weibull degradation curves
+- **MaintenanceScheduler**: Priority queue ordering by RUL urgency (nearest-deadline-first)
+
+### 3. Hull Improvement & Hybrid Propulsion
+
+**File:** `backend/app/physics/hull_propulsion.py`
+
+| Sub-Module | Standard | Description |
+|:---|:---:|:---|
+| **HullCoatingModel** | ISO 19030 | Antifouling coating degradation + cleaning ROI (Hull Roughness Power penalty as ΔR/R) |
+| **CleaningROICalculator** | — | Cost-benefit analysis: cleaning cost vs. cumulative fuel penalty savings |
+| **HybridPropulsionSystem** | — | CODLAG (Combined Diesel and Gas) hybrid drive simulation |
+
+**CODLAG Hybrid States:**
+- `DIESEL_ONLY` — Full MCR from main engines
+- `ELECTRIC_ONLY` — Battery-powered for harbor/quiet ops (SOC-limited)
+- `HYBRID` — Combined diesel + electric motor assist
+- `REGEN` — Regenerative braking mode, charging battery from shaft
+
+**Battery Model:** 500 kWh Li-ion, SOC tracking (0–100%), 250 kW electric motor, charge/discharge cycling.
+
+### 4. Systemic Blind Spots Detection
+
+**File:** `backend/app/physics/blind_spots.py`
+
+Detects degradation patterns and confounding factors that traditional monitoring misses:
+
+| Detector | Method | Target |
+|:---|:---:|:---|
+| **BaselineDegradationTracker** | CUSUM (Cumulative Sum) | Slow sensor drift over hours/days |
+| **MicroClimateEngine** | Zone classification | Localized SST/current micro-climates that bias fuel models |
+| **KineticEnergySpikeDetector** | ΔKE threshold | Speed transients masked by averaging (course changes, acceleration) |
+| **IntegrationSyncMonitor** | Clock-delta check | Sensor timestamp misalignment across data sources |
+| **CausalDisambiguationEngine** | Multi-factor attribution | Disentangling weather vs. fouling vs. trim vs. current effects |
+
+$$\text{CUSUM}_t = \max\bigl(0,\; \text{CUSUM}_{t-1} + (x_t - \mu_0) - k\bigr)$$
+
+Where $\mu_0$ is the historical baseline, $k$ is the allowable slack, and an alarm fires when CUSUM exceeds threshold $h$.
+
+### 5. Human-AI Collaboration
+
+**File:** `backend/app/physics/human_ai.py`
+
+Ensures AI recommendations remain trustworthy and actionable under operational conditions:
+
+- **DistributionShiftDetector** — KS-inspired statistical test detecting when live sensor distributions deviate from training data → triggers model confidence degradation
+- **ConnectivityManager** — Classifies comms channel (LOCAL/SATCOM/DEFERRED) and adjusts advisory verbosity; ensures AI continues functioning under challenged networking
+- **ExplainabilityEngine** — SHAP-like additive feature attribution producing natural-language explanations ("Top factor: wave_height contributed +34% to fuel increase")
+- **SafetyOverrideProtocol** — SOLAS Chapter V override tracking; logs all manual overrides with timestamps and justification for audit trail
+
+**Trust Calibration:**
+```
+AI Confidence = f(shift_detected, connectivity, sensor_health)
+  HIGH   → Full advisory mode (speed + route recommendations)
+  MEDIUM → Cautionary advisory (flagged as lower-confidence)
+  LOW    → Manual fallback (AI provides data display only)
+```
+
+### 6. EEXI Compliance Engine
+
+**File:** `backend/app/physics/eexi_compliance.py`
+
+Implements the full IMO EEXI regulatory calculation stack:
+
+**EEXI Attained (MEPC.328(76)):**
+
+$$\text{EEXI} = \frac{C_F \cdot \text{SFC} \cdot 0.75 \cdot \text{MCR}}{f_i \cdot \text{Capacity} \cdot V_{ref} \cdot f_w}$$
+
+| Symbol | Description | Value |
+|:---:|:---|:---|
+| $C_F$ | CO₂ conversion factor (HFO) | 3.114 |
+| SFC | Specific Fuel Consumption | ~190 g/kWh |
+| MCR | Maximum Continuous Rating | 8,500 kW |
+| $f_i$ | Technical correction factor | 1.0 |
+| Capacity | DWT | 2,350 t |
+| $V_{ref}$ | Reference speed | 14.5 kn |
+| $f_w$ | Weather correction factor | 1.0 |
+
+**Enhanced CII Tracker (2023–2030):**
+- Annual reduction factors per MEPC.338(76) — reducing required CII by ~2% yearly
+- Dynamic year-based thresholds for A–E ratings
+- Separate tracking for transit vs. total operational CII
+
+**IMO DCS Reporter (MEPC.278(70)):**
+- Annual fuel consumption (tonnes)
+- Total distance sailed (NM)
+- Hours underway
+- Structured JSON export for Flag State submission
+
+### 7. Unified Data Architecture
+
+**File:** `backend/app/physics/data_architecture.py`
+
+Event-driven data management layer replacing ad-hoc data passing:
+
+```
+┌──────────────────────────────────────────────────────┐
+│                  Unified Data Bus                      │
+│  ┌────────┐  publish()  ┌─────────────────────┐      │
+│  │ Sensor │────────────►│  Topic: engine.*     │      │
+│  │ Feeds  │             │  Topic: nav.*        │      │
+│  └────────┘             │  Topic: env.*        │      │
+│                         │  Topic: physics.*    │      │
+│  ┌────────┐  subscribe()│  Topic: compliance.* │      │
+│  │ Physics│◄────────────┤                      │      │
+│  │ Engine │             └─────────────────────┘      │
+│  └────────┘                                           │
+│                                                        │
+│  ┌──────────────┐   ┌──────────────┐                  │
+│  │SensorRegistry│   │DataQualityScr│                  │
+│  │ • register() │   │ • freshness  │                  │
+│  │ • heartbeat()│   │ • accuracy   │                  │
+│  │ • status()   │   │ • consistency│                  │
+│  └──────────────┘   │ • completness│                  │
+│                      └──────────────┘                  │
+│                                                        │
+│  ┌──────────────┐                                     │
+│  │ NMEA Parser  │ Parse $GPGGA/$WIMDA → typed dicts   │
+│  └──────────────┘                                     │
+└──────────────────────────────────────────────────────┘
+```
+
+**Data Quality Index (DQI):**
+- **Freshness** — Lag since last sensor update (target < 500ms)
+- **Accuracy** — Signal-to-noise ratio and calibration status
+- **Consistency** — Cross-sensor agreement (e.g., ECDIS position vs. GPS)
+- **Completeness** — % of expected fields populated per frame
+
+---
 <img width="3124" height="1274" alt="Screenshot 2026-04-12 192955" src="https://github.com/user-attachments/assets/075c1bd7-572e-4651-bbec-74b3238e9743" />
 
 ## 🗺️ AIS & Navigation
@@ -542,6 +751,8 @@ The primary operational view displaying aggregated vessel intelligence:
 - **AI Predictive Curve** — 5-point PINN biofouling fuel curve showing optimal vs. actual consumption across the 10–20 kn speed envelope
 - **DRL Ghost Route Panel** — PPO optimizer status with current/recommended speed, fuel saving rate, cumulative savings, and MCR band compliance
 - **System Alerts** — Deduplicated, severity-tagged alert feed (CRITICAL, WARNING, ADVISORY, INFO) with timestamps and occurrence counts
+- **Sensor Integration Hub** — 5-sensor fusion status (ECDIS, EMCS, FOMS, Weather, VDR) with live status indicators, UKC, XTE, fuel quality index, and overall sensor health %
+- **Data Architecture Panel** — Unified Data Bus health: DQI score bar, message rate, 4-dimension quality grid (freshness/accuracy/consistency/completeness), NMEA parse count, registered sensor count
 
 ### 2. Engine — Propulsion Analytics
 
@@ -552,6 +763,8 @@ Deep-dive into propulsion system monitoring:
 - **Live Telemetry 2×2 Grid** — E1 Lube Oil Pressure, E1 Coolant Temperature, E2 Lube Oil Pressure, E2 Exhaust C3 Temperature with conditional alert styling when values exceed thresholds
 - **Propulsion Sync Hub** — MCR Load bar with 70–85% **green optimal zone overlay** and live pointer tracking. Supplementary readouts: CPP Pitch angle, Shaft RPM, Load Balance %, Propeller Coefficient Δ
 - **Enhanced SOLAS Override** — Interactive toggle button (DISARMED ↔ ARMED) with track slider, armed/disarmed visual states, and system alert on activation
+- **Predictive Maintenance Panel** — Component health tiers (HEALTHY/WATCH/CAUTION/CRITICAL) with RUL days per component, anomaly count, and next-maintenance indicator per MIL-STD-3034
+- **Hull & Hybrid Propulsion Panel** — ISO 19030 coating age, ΔR/R fouling progress bar, CODLAG hybrid drive mode indicator, battery SOC gauge, electric motor power, and hybrid fuel saving %
 
 ### 3. Route — Geospatial Intelligence
 
@@ -573,6 +786,9 @@ Regulatory compliance monitoring and reporting:
 - **Segment Classification Table** — 7-row operational timeline with color-coded mode badges (TRANSIT=cyan, SAR_LOITER=amber, ANCHORED=gray), fuel consumption per segment, and amber highlighting for segments >20 MT
 - **IMO DCS Report Button** — One-click Data Collection System report generation with alert notification
 - **DRL PPO Optimizer** — Full Ghost Route dashboard with speed reduction advice, MCR band status, and cumulative fuel savings
+- **Systemic Blind Spots Panel** — CUSUM drift progress bar with alarm threshold, micro-climate zone classifier, KE spike detection flag, sensor sync status, and causal disambiguation (top confounding factor)
+- **Human-AI Collaboration Panel** — AI confidence tier badge (HIGH/MEDIUM/LOW), connectivity type and bandwidth, SHAP top factor with contribution %, distribution shift alert, SOLAS override audit status, and natural-language advisory text
+- **EEXI Compliance Engine** — 4-card grid: EEXI Attained, EEXI Required, Margin, CII Enhanced Rating. Detail rows for CF, SFC, MCR fraction, DWT, EPL, IMO DCS totals, and annual reduction schedule
 
 ### 5. Settings — System Configuration
 
@@ -606,7 +822,7 @@ Edge node configuration and diagnostics:
 | **Python** | 3.12 | Runtime |
 | **FastAPI** | 0.115.x | Async HTTP + WebSocket framework |
 | **Uvicorn** | 0.34.x | ASGI server |
-| **Pydantic v2** | 2.10.x | Schema validation (10 telemetry sub-models) |
+| **Pydantic v2** | 2.10.x | Schema validation (17 telemetry sub-models) |
 | **NumPy** | 2.2.x | Physics computations & random walks |
 | **WebSockets** | 14.1 | Bidirectional telemetry channel |
 
@@ -634,7 +850,7 @@ ws://localhost:8000/ws/telemetry
 
 ### Downstream — Telemetry Frame (Server → Client)
 
-Every 250ms, the backend emits a JSON frame with 10 top-level sections:
+Every 250ms, the backend emits a JSON frame with 17 top-level sections:
 
 ```jsonc
 {
@@ -706,6 +922,77 @@ Every 250ms, the backend emits a JSON frame with 10 top-level sections:
     "transit_co2_tonnes": 1.847,
     "loiter_co2_tonnes": 0.412
   },
+  "sensor_integration": {
+    "sensors": {
+      "ECDIS": {"status": "OK", "ukc_m": 8.2, "xte_m": 12.5},
+      "EMCS": {"status": "OK", "exhaust_temps_c": [320, 318, 325, 322]},
+      "FOMS": {"status": "OK", "flow_kgh": 503.7, "quality_idx": 87},
+      "WEATHER": {"status": "OK", "baro_trend": "falling", "humidity_pct": 78},
+      "VDR": {"status": "RECORDING", "capsule_ok": true}
+    },
+    "health_pct": 100.0,
+    "correlations": {"fuel_quality_index": 87, "xte_corridor_pct": 6.2}
+  },
+  "predictive_maintenance": {
+    "components": {
+      "main_engine": {"rul_days": 142, "health": "HEALTHY"},
+      "turbocharger": {"rul_days": 67, "health": "WATCH"},
+      "fuel_pump": {"rul_days": 201, "health": "HEALTHY"},
+      "alternator": {"rul_days": 88, "health": "WATCH"},
+      "cooling_system": {"rul_days": 23, "health": "CAUTION"}
+    },
+    "anomaly_count": 1,
+    "next_maintenance": "cooling_system",
+    "avg_rul_days": 104.2
+  },
+  "hull_propulsion": {
+    "coating_age_months": 14.2,
+    "delta_rr": 0.034,
+    "cleaning_roi_positive": true,
+    "hybrid_mode": "DIESEL_ONLY",
+    "battery_soc_pct": 78.5,
+    "electric_motor_kw": 0,
+    "fuel_saving_hybrid_pct": 0
+  },
+  "blind_spots": {
+    "cusum_drift": 0.23,
+    "drift_alarm": false,
+    "micro_climate_zone": "tropical_coastal",
+    "ke_spike_detected": false,
+    "sync_status": "OK",
+    "causal_top_cause": "wave_height",
+    "risk_level": "LOW"
+  },
+  "human_ai_collaboration": {
+    "ai_confidence": "HIGH",
+    "distribution_shift": false,
+    "connectivity_type": "LOCAL",
+    "bandwidth_mbps": 100,
+    "shap_top_factor": "wave_height",
+    "shap_top_contribution": 0.34,
+    "solas_override_active": false,
+    "nl_advisory": "Maintain current speed. Conditions nominal."
+  },
+  "eexi_compliance": {
+    "eexi_attained": 28.4,
+    "eexi_required": 32.1,
+    "eexi_margin": 3.7,
+    "eexi_compliant": true,
+    "cf": 3.114,
+    "sfc_gkwh": 190,
+    "cii_enhanced_rating": "B",
+    "cii_annual_reduction_pct": 2.0,
+    "imo_dcs": {"fuel_tonnes": 1847.2, "distance_nm": 12450, "hours_underway": 1820}
+  },
+  "data_architecture": {
+    "dqi_score": 0.91,
+    "bus_message_rate_hz": 48,
+    "quality_dimensions": {
+      "freshness": 0.95, "accuracy": 0.89, "consistency": 0.92, "completeness": 0.88
+    },
+    "nmea_parse_count": 4200,
+    "registered_sensors": 12
+  },
   "ai_advisory_mode": true
 }
 ```
@@ -748,17 +1035,25 @@ SAMUDRA implements compliance monitoring for the following international maritim
 | **MEPC.355(78)** | MEPC | CII correction factors for voyage adjustments | CII segregation |
 | **MEPC.364(79)** | MEPC | CO₂ emission factors (C_F = 3.114 for HFO) | Physics engine |
 | **MEPC.339(76)** | MEPC | CII reference lines and rating boundaries | CII A–E ratings |
+| **MEPC.328(76)** | MEPC | EEXI calculation methodology | EEXI Compliance Engine |
+| **MEPC.338(76)** | MEPC | CII annual reduction factors 2023–2030 | Enhanced CII Tracker |
+| **MEPC.278(70)** | MEPC | IMO Data Collection System (DCS) reporting | IMO DCS Reporter |
 | **IMO DCS** | IMO | Data Collection System for fuel consumption | DCS report button |
-| **EEXI** | IMO | Energy Efficiency Existing Ship Index | Future milestone |
-| **SOLAS** | IMO | Safety of Life at Sea — override panel | SOLAS toggle |
+| **EEXI** | IMO | Energy Efficiency Existing Ship Index | EEXI Compliance Engine |
+| **SOLAS Ch. V** | IMO | Safety of Life at Sea — override panel | SOLAS toggle + audit trail |
+| **MIL-STD-3034** | DoD | Reliability-Centered Maintenance | Predictive Maintenance |
+| **ISO 19030** | ISO | Hull & propeller performance monitoring | Hull Coating Model |
+| **ISO 8217** | ISO | Marine fuel quality specifications | FOMS sensor integration |
+| **IEC 61174** | IEC | ECDIS operational requirements | Sensor Integration Hub |
+| **IEC 61996** | IEC | VDR performance standards | Sensor Integration Hub |
 | **ITU-R M.1371-5** | ITU | AIS technical characteristics | AIVDM encoding |
-| **NMEA 0183 v4.11** | NMEA | Marine electronic device interface | Sentence format |
+| **NMEA 0183 v4.11** | NMEA | Marine electronic device interface | Sentence format + parser |
 | **IEC 62287-1** | IEC | AIS Class A shipborne equipment | Message Type 1 |
 | **Douglas Sea Scale** | WMO | Sea state 0–9 from wave height | Environment frame |
 
 ---
 
-## 📈 KPI Catalog (60+)
+## 📈 KPI Catalog (130+)
 
 <details>
 <summary><b>Click to expand full KPI listing</b></summary>
@@ -874,6 +1169,85 @@ SAMUDRA implements compliance monitoring for the following international maritim
 | 78 | Structural Risk Score | 0–100 | Composite (pitch + roll) |
 | 79 | Overall Risk Index | 0–100 | Average of all 6 domains |
 
+### Sensor Integration Domain
+| # | KPI | Unit | Source |
+|:---:|:---|:---:|:---|
+| 80 | Sensor Health | % | `sensor_integration.health_pct` |
+| 81 | ECDIS UKC | m | `sensor_integration.sensors.ECDIS.ukc_m` |
+| 82 | Cross-Track Error (XTE) | m | `sensor_integration.sensors.ECDIS.xte_m` |
+| 83 | Fuel Quality Index | 0–100 | `sensor_integration.correlations.fuel_quality_index` |
+| 84 | XTE Corridor % | % | `sensor_integration.correlations.xte_corridor_pct` |
+| 85 | VDR Recording Status | flag | `sensor_integration.sensors.VDR.status` |
+
+### Predictive Maintenance Domain
+| # | KPI | Unit | Source |
+|:---:|:---|:---:|:---|
+| 86 | Average RUL | days | `predictive_maintenance.avg_rul_days` |
+| 87 | Anomaly Count | count | `predictive_maintenance.anomaly_count` |
+| 88 | Next Maintenance Component | name | `predictive_maintenance.next_maintenance` |
+| 89 | Main Engine RUL | days | `predictive_maintenance.components.main_engine.rul_days` |
+| 90 | Turbocharger RUL | days | `predictive_maintenance.components.turbocharger.rul_days` |
+| 91 | Cooling System RUL | days | `predictive_maintenance.components.cooling_system.rul_days` |
+
+### Hull & Hybrid Propulsion Domain
+| # | KPI | Unit | Source |
+|:---:|:---|:---:|:---|
+| 92 | Coating Age | months | `hull_propulsion.coating_age_months` |
+| 93 | Hull Fouling ΔR/R | ratio | `hull_propulsion.delta_rr` |
+| 94 | Cleaning ROI Positive | flag | `hull_propulsion.cleaning_roi_positive` |
+| 95 | Hybrid Drive Mode | enum | `hull_propulsion.hybrid_mode` |
+| 96 | Battery SOC | % | `hull_propulsion.battery_soc_pct` |
+| 97 | Electric Motor Power | kW | `hull_propulsion.electric_motor_kw` |
+| 98 | Hybrid Fuel Saving | % | `hull_propulsion.fuel_saving_hybrid_pct` |
+
+### Blind Spots Domain
+| # | KPI | Unit | Source |
+|:---:|:---|:---:|:---|
+| 99 | CUSUM Drift | σ | `blind_spots.cusum_drift` |
+| 100 | Drift Alarm | flag | `blind_spots.drift_alarm` |
+| 101 | Micro-Climate Zone | enum | `blind_spots.micro_climate_zone` |
+| 102 | KE Spike Detected | flag | `blind_spots.ke_spike_detected` |
+| 103 | Sensor Sync Status | enum | `blind_spots.sync_status` |
+| 104 | Causal Top Cause | name | `blind_spots.causal_top_cause` |
+| 105 | Blind Spot Risk Level | LOW/MED/HI | `blind_spots.risk_level` |
+
+### Human-AI Collaboration Domain
+| # | KPI | Unit | Source |
+|:---:|:---|:---:|:---|
+| 106 | AI Confidence Tier | HIGH/MED/LOW | `human_ai_collaboration.ai_confidence` |
+| 107 | Distribution Shift Detected | flag | `human_ai_collaboration.distribution_shift` |
+| 108 | Connectivity Type | enum | `human_ai_collaboration.connectivity_type` |
+| 109 | Bandwidth | Mbps | `human_ai_collaboration.bandwidth_mbps` |
+| 110 | SHAP Top Factor | name | `human_ai_collaboration.shap_top_factor` |
+| 111 | SHAP Top Contribution | ratio | `human_ai_collaboration.shap_top_contribution` |
+| 112 | SOLAS Override Active | flag | `human_ai_collaboration.solas_override_active` |
+| 113 | NL Advisory Text | text | `human_ai_collaboration.nl_advisory` |
+
+### EEXI & Enhanced CII Domain
+| # | KPI | Unit | Source |
+|:---:|:---|:---:|:---|
+| 114 | EEXI Attained | g-CO₂/t·NM | `eexi_compliance.eexi_attained` |
+| 115 | EEXI Required | g-CO₂/t·NM | `eexi_compliance.eexi_required` |
+| 116 | EEXI Margin | g-CO₂/t·NM | `eexi_compliance.eexi_margin` |
+| 117 | EEXI Compliant | flag | `eexi_compliance.eexi_compliant` |
+| 118 | CII Enhanced Rating | A–E | `eexi_compliance.cii_enhanced_rating` |
+| 119 | CII Annual Reduction | %/yr | `eexi_compliance.cii_annual_reduction_pct` |
+| 120 | IMO DCS Fuel Total | tonnes | `eexi_compliance.imo_dcs.fuel_tonnes` |
+| 121 | IMO DCS Distance | NM | `eexi_compliance.imo_dcs.distance_nm` |
+| 122 | IMO DCS Hours Underway | h | `eexi_compliance.imo_dcs.hours_underway` |
+
+### Data Architecture Domain
+| # | KPI | Unit | Source |
+|:---:|:---|:---:|:---|
+| 123 | Data Quality Index (DQI) | 0–1 | `data_architecture.dqi_score` |
+| 124 | Bus Message Rate | Hz | `data_architecture.bus_message_rate_hz` |
+| 125 | DQ Freshness | 0–1 | `data_architecture.quality_dimensions.freshness` |
+| 126 | DQ Accuracy | 0–1 | `data_architecture.quality_dimensions.accuracy` |
+| 127 | DQ Consistency | 0–1 | `data_architecture.quality_dimensions.consistency` |
+| 128 | DQ Completeness | 0–1 | `data_architecture.quality_dimensions.completeness` |
+| 129 | NMEA Parse Count | count | `data_architecture.nmea_parse_count` |
+| 130 | Registered Sensors | count | `data_architecture.registered_sensors` |
+
 </details>
 
 ---
@@ -962,6 +1336,13 @@ chmod +x start.sh
 | **Latest Telemetry** | http://localhost:8000/api/v1/telemetry/latest |
 | **Telemetry History** | http://localhost:8000/api/v1/telemetry/history?last=60 |
 | **Vessel Status** | http://localhost:8000/api/v1/vessel/status |
+| **Sensor Integration** | http://localhost:8000/api/v1/sensors/status |
+| **Predictive Maintenance** | http://localhost:8000/api/v1/maintenance/status |
+| **Hull & Propulsion** | http://localhost:8000/api/v1/hull/status |
+| **Blind Spots** | http://localhost:8000/api/v1/blindspots/status |
+| **Human-AI Collab** | http://localhost:8000/api/v1/humanai/status |
+| **EEXI Compliance** | http://localhost:8000/api/v1/eexi/status |
+| **Data Bus Status** | http://localhost:8000/api/v1/databus/status |
 
 ### Build for Production
 

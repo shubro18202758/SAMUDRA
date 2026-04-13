@@ -92,3 +92,67 @@ async def vessel_status():
         "frame_count": len(frames),
         "uptime_s": round(time.time() - start_time, 1),
     }
+
+
+# ─── Phase 4: New Endpoints for 7-Gap Modules ────────────────────────────
+@app.get("/api/v1/sensors/status")
+async def sensors_status():
+    """Sensor Integration Hub — latest sensor health and data."""
+    if not telemetry_history:
+        return {"error": "No telemetry data yet"}
+    latest = telemetry_history[-1]
+    return latest.get("sensor_integration", {})
+
+
+@app.get("/api/v1/maintenance/status")
+async def maintenance_status():
+    """Predictive Maintenance — component health and schedule."""
+    if not telemetry_history:
+        return {"error": "No telemetry data yet"}
+    latest = telemetry_history[-1]
+    return latest.get("predictive_maintenance", {})
+
+
+@app.get("/api/v1/hull/status")
+async def hull_status():
+    """Hull coating & hybrid propulsion status."""
+    if not telemetry_history:
+        return {"error": "No telemetry data yet"}
+    latest = telemetry_history[-1]
+    return latest.get("hull_propulsion", {})
+
+
+@app.get("/api/v1/blindspots/status")
+async def blindspots_status():
+    """Systemic blind spot detection results."""
+    if not telemetry_history:
+        return {"error": "No telemetry data yet"}
+    latest = telemetry_history[-1]
+    return latest.get("blind_spots", {})
+
+
+@app.get("/api/v1/humanai/status")
+async def humanai_status():
+    """Human-AI collaboration — distribution shift, connectivity, XAI."""
+    if not telemetry_history:
+        return {"error": "No telemetry data yet"}
+    latest = telemetry_history[-1]
+    return latest.get("human_ai_collaboration", {})
+
+
+@app.get("/api/v1/eexi/status")
+async def eexi_status():
+    """EEXI & enhanced CII compliance status."""
+    if not telemetry_history:
+        return {"error": "No telemetry data yet"}
+    latest = telemetry_history[-1]
+    return latest.get("eexi_compliance", {})
+
+
+@app.get("/api/v1/data/quality")
+async def data_quality():
+    """Data architecture — quality scoring and sensor registry."""
+    if not telemetry_history:
+        return {"error": "No telemetry data yet"}
+    latest = telemetry_history[-1]
+    return latest.get("data_architecture", {})

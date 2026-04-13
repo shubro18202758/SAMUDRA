@@ -38,6 +38,15 @@ from app.physics.biofouling import BiofoulingSurrogate
 from app.physics.drl_optimizer import DRLVoyageOptimizer
 from app.physics.cii_segregation import CIISegregationEngine
 
+# ---- Phase 4 Modules (7-Gap Overhaul) ----
+from app.physics.sensor_integration import SensorIntegrationHub
+from app.physics.predictive_maintenance import PredictiveMaintenanceEngine
+from app.physics.hull_propulsion import HullPropulsionEngine
+from app.physics.blind_spots import BlindSpotsEngine
+from app.physics.human_ai import HumanAIEngine
+from app.physics.eexi_compliance import EEXIComplianceEngine
+from app.physics.data_architecture import DataArchitectureEngine
+
 # =============================================================================
 # Vessel Constants — Indian Coast Guard OPV Class
 # =============================================================================
@@ -248,6 +257,15 @@ class HydrodynamicEngine:
         # --- CII Tactical Segregation (MEPC.355(78)) ---
         self._cii = CIISegregationEngine(seed=seed)
 
+        # --- Phase 4: 7-Gap Overhaul Modules ---
+        self._sensors = SensorIntegrationHub(seed=seed)
+        self._maintenance = PredictiveMaintenanceEngine(seed=seed)
+        self._hull_prop = HullPropulsionEngine(seed=seed)
+        self._blind_spots = BlindSpotsEngine(seed=seed)
+        self._human_ai = HumanAIEngine(seed=seed)
+        self._eexi = EEXIComplianceEngine(year=2025, epl_applied=False)
+        self._data_arch = DataArchitectureEngine()
+
     # --------------------------------------------------------------------- #
     # AI Advisory Mode Toggle
     # --------------------------------------------------------------------- #
@@ -423,6 +441,104 @@ class HydrodynamicEngine:
             dt=dt,
         )
 
+        # ---- 14. Sensor Integration Hub ----
+        sensor_out = self._sensors.update(
+            sog_kts=sog_kts,
+            heading_deg=nav["heading_deg"],
+            lat=nav["latitude"],
+            lon=nav["longitude"],
+            depth_m=50.0 + float(self._rng.normal(0.0, 5.0)),
+            rpm=rpm,
+            power_kw=power_actual_kw,
+            egt_avg_c=temp_c,
+            fuel_flow_kgh=fuel_flow_kgh,
+            sst_c=sst_c,
+            wind_speed_kts=wind_speed,
+            wave_height_m=self._monsoon.wave_height_m,
+            elapsed_s=self._clock,
+            dt=dt,
+        )
+
+        # ---- 15. Predictive Maintenance ----
+        maint_out = self._maintenance.update(
+            rpm=rpm,
+            power_kw=power_actual_kw,
+            temperature_c=temp_c,
+            fuel_flow_kgh=fuel_flow_kgh,
+            sog_kts=sog_kts,
+            dt=dt,
+        )
+
+        # ---- 16. Hull Improvement & Hybrid Propulsion ----
+        bio_penalty = ai_curve.get("penalty_pct", 0.0) if isinstance(ai_curve, dict) else 0.0
+        mission_state = cii_out.get("mission_state", "transit")
+        hull_out = self._hull_prop.update(
+            sst_c=sst_c,
+            power_kw=power_actual_kw,
+            sog_kts=sog_kts,
+            mission_state=mission_state,
+            dt=dt,
+        )
+
+        # ---- 17. Systemic Blind Spot Detection ----
+        blind_out = self._blind_spots.update(
+            sog_kts=sog_kts,
+            power_kw=power_actual_kw,
+            fuel_flow_kgh=fuel_flow_kgh,
+            sst_c=sst_c,
+            wind_speed_kts=wind_speed,
+            wave_height_m=self._monsoon.wave_height_m,
+            lat=nav["latitude"],
+            lon=nav["longitude"],
+            elapsed_s=self._clock,
+            dt=dt,
+        )
+
+        # ---- 18. Human-AI Collaboration ----
+        engine_load_pct = (power_actual_kw / DESIGN_SHAFT_POWER_KW) * 100.0
+        drl_fuel_saving = drl_out.get("fuel_saving_kgh", 0.0)
+        fuel_saving_pct = (drl_fuel_saving / max(fuel_flow_kgh, 1.0)) * 100.0
+        xte_nm = sensor_out.get("ecdis", {}).get("cross_track_error_nm", 0.0)
+        coastal_dist = sensor_out.get("ecdis", {}).get("depth_m", 50.0) * 0.01
+        human_ai_out = self._human_ai.update(
+            sog_kts=sog_kts,
+            power_kw=power_actual_kw,
+            sst_c=sst_c,
+            wind_speed_kts=wind_speed,
+            wave_height_m=self._monsoon.wave_height_m,
+            fuel_flow_kgh=fuel_flow_kgh,
+            optimal_speed_kts=drl_out.get("recommended_speed_kts", DESIGN_SPEED_KTS),
+            bio_penalty_pct=bio_penalty,
+            trim_deg=pitch_deg,
+            engine_load_pct=engine_load_pct,
+            xte_nm=xte_nm,
+            fuel_saving_pct=fuel_saving_pct,
+            coastal_distance_nm=coastal_dist,
+            elapsed_s=self._clock,
+            dt=dt,
+        )
+
+        # ---- 19. EEXI & Enhanced CII Compliance ----
+        fuel_kg_tick = fuel_flow_kgh * (dt / 3600.0)
+        dist_nm_tick = sog_kts * (dt / 3600.0)
+        eexi_out = self._eexi.update(
+            fuel_consumed_kg=fuel_kg_tick,
+            distance_nm=dist_nm_tick,
+            sfc_gkwh=sfoc_gkwh,
+            weather_factor=1.0 - self._monsoon.resistance_factor * 0.1,
+            fuel_type="HFO",
+            dt_hours=dt / 3600.0,
+        )
+
+        # ---- 20. Data Architecture — Unified Data Bus ----
+        telemetry_snapshot = {
+            "sog_kts": sog_kts, "rpm": rpm, "fuel_flow_kgh": fuel_flow_kgh,
+            "power_kw": power_actual_kw, "lat": nav["latitude"],
+            "lon": nav["longitude"], "sst_c": sst_c,
+            "wind_speed_kts": wind_speed, "egt_avg_c": temp_c,
+        }
+        data_arch_out = self._data_arch.ingest_tick(telemetry_snapshot, self._clock)
+
         # ---- Build payload ----
         return {
             "timestamp": time.time(),
@@ -469,6 +585,14 @@ class HydrodynamicEngine:
             "drl_optimization": drl_out,
             "cii_segregation": cii_out,
             "ai_advisory_mode": self._ai_enabled,
+            # ---- Phase 4: 7-Gap Overhaul Data ----
+            "sensor_integration": sensor_out,
+            "predictive_maintenance": maint_out,
+            "hull_propulsion": hull_out,
+            "blind_spots": blind_out,
+            "human_ai_collaboration": human_ai_out,
+            "eexi_compliance": eexi_out,
+            "data_architecture": data_arch_out,
         }
 
     # --------------------------------------------------------------------- #

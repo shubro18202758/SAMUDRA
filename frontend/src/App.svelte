@@ -16,6 +16,13 @@
     drl_optimization: { ghost_route_active: boolean; current_speed_kts: number; recommended_speed_kts: number; speed_reduction_kts: number; eta_current_s: number; eta_planned_s: number; arrival_delta_s: number; fuel_saving_kgh: number; total_fuel_saved_kg: number; mcr_load_pct: number; recommended_mcr_load_pct: number; in_mcr_band: boolean; ppo_reward: number };
     cii_segregation: { mission_state: string; cii_attained_raw: number; cii_attained_corrected: number; cii_reference: number; cii_rating_raw: string; cii_rating_corrected: string; transit_co2_tonnes: number; loiter_co2_tonnes: number; transit_fuel_tonnes: number; loiter_fuel_tonnes: number; transit_distance_nm: number; loiter_events: number; transit_events: number; elapsed_hours: number };
     ai_advisory_mode: boolean;
+    sensor_integration: Record<string, any>;
+    predictive_maintenance: Record<string, any>;
+    hull_propulsion: Record<string, any>;
+    blind_spots: Record<string, any>;
+    human_ai_collaboration: Record<string, any>;
+    eexi_compliance: Record<string, any>;
+    data_architecture: Record<string, any>;
   }
   interface SystemAlert { id: number; severity: 'CRITICAL'|'WARNING'|'ADVISORY'|'INFO'; message: string; time: string; count: number; key: string }
 
@@ -153,11 +160,46 @@
     const thermalBudgetPct = t.engine.temperature_c / 550 * 100;
     const rpmDevPct = Math.abs(t.engine.rpm - 120) / 120 * 100;
     const loadBalance = t.drl_optimization.mcr_load_pct / (t.drl_optimization.recommended_mcr_load_pct || 1) * 100;
+
+    // ── Phase 4: 7-Gap Analytics ──
+    const si = t.sensor_integration ?? {};
+    const pm = t.predictive_maintenance ?? {};
+    const hp = t.hull_propulsion ?? {};
+    const bs = t.blind_spots ?? {};
+    const hai = t.human_ai_collaboration ?? {};
+    const eex = t.eexi_compliance ?? {};
+    const da = t.data_architecture ?? {};
+
+    const sensorHealthPct = si.sensors ? (Object.values(si.sensors as Record<string, any>).filter((s: any) => s?.status === 'OK' || s?.status === 'NOMINAL').length / Math.max(1, Object.keys(si.sensors).length) * 100) : 100;
+    const avgRULDays = pm.components ? (Object.values(pm.components as Record<string, any>).reduce((acc: number, c: any) => acc + (c?.rul_hours ?? 0), 0) / Math.max(1, Object.keys(pm.components).length) / 24) : 999;
+    const maintenanceDue = pm.scheduler?.next_due_hours ?? 999;
+    const anomalyCount = pm.anomaly_detector?.active_anomalies ?? 0;
+    const hullCoatingAge = hp.coating?.age_months ?? 0;
+    const hullDeltaRR = hp.coating?.delta_rr_pct ?? 0;
+    const batterySOC = hp.hybrid?.battery_soc_pct ?? 0;
+    const propMode = hp.hybrid?.current_mode ?? 'DIESEL';
+    const blindSpotRisk = bs.overall_risk_score ?? 0;
+    const degradationDrift = bs.degradation?.cusum_drift ?? 0;
+    const aiConfidence = hai.confidence_tier ?? 'HIGH';
+    const connectivityType = hai.connectivity?.active_link ?? 'LOCAL';
+    const shapTopFactor = hai.explainability?.top_factor ?? 'N/A';
+    const eexiAttained = eex.eexi?.attained ?? 0;
+    const eexiRequired = eex.eexi?.required ?? 0;
+    const eexiCompliant = eex.eexi?.compliant ?? true;
+    const ciiEnhancedRating = eex.cii_tracker?.enhanced_rating ?? t.cii_segregation.cii_rating_corrected;
+    const dqiScore = da.quality?.overall_dqi ?? 1.0;
+    const busMessageRate = da.bus?.messages_per_sec ?? 0;
+
     return {
       dailyFuelT, co2RateKgH, fuelEffPct, powerMarginPct, timeToWpH, fuelToWpKg, bft, relWindDeg,
       dailyCO2T, dailyFuelCost, dailySavings, hullROI, risk, propCoeffDev, speedDef, totalCO2, totalFuelKg,
       fn, seaMrg, fuelRemainKg, rangeH, endDays, rangeNM, soxKgH, noxKgH, pmKgH, specPowerKwPerKn,
       hullEffIdx, thermalBudgetPct, rpmDevPct, loadBalance, cubicCalm, fuelUsedKg,
+      // Phase 4 gap analytics
+      sensorHealthPct, avgRULDays, maintenanceDue, anomalyCount, hullCoatingAge, hullDeltaRR,
+      batterySOC, propMode, blindSpotRisk, degradationDrift, aiConfidence, connectivityType,
+      shapTopFactor, eexiAttained, eexiRequired, eexiCompliant, ciiEnhancedRating,
+      dqiScore, busMessageRate,
     };
   });
 
@@ -1340,6 +1382,157 @@
           </div>
         </div>
 
+        <!-- ═══════ PHASE 4: 7-GAP INTELLIGENCE MODULES ═══════════════════ -->
+        <!-- SENSOR INTEGRATION + DATA QUALITY (Tactical / Engine) -->
+        <div class="r2" style:display={currentView === 'tactical' || currentView === 'engine' ? 'grid' : 'none'}>
+          <div class="pnl">
+            <div class="ph"><h2>📡 SENSOR INTEGRATION HUB</h2>
+              <span class="ptag pt-t">IHO S-57</span>
+              <span class="ptag" style="color:{derived.sensorHealthPct>=90?OB.green:derived.sensorHealthPct>=70?OB.amber:OB.red};background:rgba({derived.sensorHealthPct>=90?'34,255,136':derived.sensorHealthPct>=70?'255,170,51':'255,51,68'},.08)">{derived.sensorHealthPct.toFixed(0)}% HEALTH</span>
+            </div>
+            <div class="rdts">
+              {#each ['ECDIS','EMCS','FOMS','WEATHER','VDR'] as sname}
+              {@const sdata = (telemetry.sensor_integration?.sensors ?? {})[sname.toLowerCase()] ?? {}}
+              <div class="ro">
+                <span class="ro-l">{sname}</span>
+                <span class="ro-v" style="color:{sdata.status==='OK'||sdata.status==='NOMINAL'?OB.green:sdata.status==='DEGRADED'?OB.amber:OB.red}">{sdata.status ?? 'N/A'}</span>
+                <span style="font:500 6px var(--mono);color:var(--n-td)">{sdata.update_rate_hz?.toFixed(1) ?? '—'} Hz</span>
+              </div>
+              {/each}
+              <div class="ro"><span class="ro-l">UKC</span><span class="ro-v ro-cyan">{(telemetry.sensor_integration?.sensors?.ecdis?.ukc_m ?? 0).toFixed(1)} m</span></div>
+              <div class="ro"><span class="ro-l">XTE</span><span class="ro-v">{(telemetry.sensor_integration?.sensors?.ecdis?.xte_nm ?? 0).toFixed(3)} nm</span></div>
+              <div class="ro"><span class="ro-l">Fuel Quality</span><span class="ro-v">{telemetry.sensor_integration?.sensors?.foms?.fuel_quality ?? 'ISO 8217'}</span></div>
+            </div>
+          </div>
+          <div class="pnl">
+            <div class="ph"><h2>📊 DATA ARCHITECTURE</h2>
+              <span class="ptag pt-t">UNIFIED BUS</span>
+              <span class="ptag" style="color:{derived.dqiScore>=0.9?OB.green:derived.dqiScore>=0.7?OB.amber:OB.red};background:rgba({derived.dqiScore>=0.9?'34,255,136':derived.dqiScore>=0.7?'255,170,51':'255,51,68'},.08)">DQI {(derived.dqiScore*100).toFixed(0)}%</span>
+            </div>
+            <div class="rdts">
+              <div class="ro"><span class="ro-l">Bus Rate</span><span class="ro-v ro-teal">{derived.busMessageRate.toFixed(0)} msg/s</span></div>
+              <div class="ro"><span class="ro-l">Completeness</span><span class="ro-v">{((telemetry.data_architecture?.quality?.completeness ?? 1)*100).toFixed(0)}%</span><div class="ro-bar"><div class="ro-bf" style="width:{(telemetry.data_architecture?.quality?.completeness ?? 1)*100}%;background:{OB.teal}"></div></div></div>
+              <div class="ro"><span class="ro-l">Timeliness</span><span class="ro-v">{((telemetry.data_architecture?.quality?.timeliness ?? 1)*100).toFixed(0)}%</span><div class="ro-bar"><div class="ro-bf" style="width:{(telemetry.data_architecture?.quality?.timeliness ?? 1)*100}%;background:{OB.cyan}"></div></div></div>
+              <div class="ro"><span class="ro-l">Accuracy</span><span class="ro-v">{((telemetry.data_architecture?.quality?.accuracy ?? 1)*100).toFixed(0)}%</span><div class="ro-bar"><div class="ro-bf" style="width:{(telemetry.data_architecture?.quality?.accuracy ?? 1)*100}%;background:{OB.green}"></div></div></div>
+              <div class="ro"><span class="ro-l">Consistency</span><span class="ro-v">{((telemetry.data_architecture?.quality?.consistency ?? 1)*100).toFixed(0)}%</span><div class="ro-bar"><div class="ro-bf" style="width:{(telemetry.data_architecture?.quality?.consistency ?? 1)*100}%;background:{OB.purple}"></div></div></div>
+              <div class="ro"><span class="ro-l">NMEA Parsed</span><span class="ro-v">{telemetry.data_architecture?.nmea_parsed ?? 0}</span></div>
+              <div class="ro"><span class="ro-l">Registered Sensors</span><span class="ro-v">{telemetry.data_architecture?.registry_count ?? 10}</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PREDICTIVE MAINTENANCE + HULL/PROPULSION (Engine view) -->
+        <div class="r2" style:display={currentView === 'engine' || currentView === 'tactical' ? 'grid' : 'none'}>
+          <div class="pnl">
+            <div class="ph"><h2>🔧 PREDICTIVE MAINTENANCE</h2>
+              <span class="ptag" style="color:{derived.anomalyCount>0?OB.red:OB.green};background:rgba({derived.anomalyCount>0?'255,51,68':'34,255,136'},.08)">{derived.anomalyCount>0?'ALERT':'NOMINAL'}</span>
+              <span class="ptag pt-t">MIL-STD-3034</span>
+            </div>
+            <div class="rdts">
+              {#each Object.entries(telemetry.predictive_maintenance?.components ?? {}) as [cname, cdata]}
+              {@const cd = cdata as any}
+              <div class="ro">
+                <span class="ro-l" style="text-transform:capitalize">{cname.replace(/_/g,' ')}</span>
+                <span class="ro-v" style="color:{cd.health_tier>=4?OB.green:cd.health_tier>=3?OB.teal:cd.health_tier>=2?OB.amber:OB.red}">T{cd.health_tier ?? 5}</span>
+                <span style="font:500 6px var(--mono);color:var(--n-td)">RUL {((cd.rul_hours ?? 0)/24).toFixed(0)}d</span>
+                <div class="ro-bar"><div class="ro-bf" style="width:{(cd.health_pct ?? 100)}%;background:{heatColor(1-(cd.health_pct ?? 100)/100)}"></div></div>
+              </div>
+              {/each}
+              <div class="ro"><span class="ro-l">Anomalies</span><span class="ro-v" style="color:{derived.anomalyCount>0?OB.red:OB.green}">{derived.anomalyCount}</span></div>
+              <div class="ro"><span class="ro-l">Next Maint</span><span class="ro-v ro-amber">{derived.maintenanceDue.toFixed(0)} h</span></div>
+              <div class="ro"><span class="ro-l">Avg RUL</span><span class="ro-v" style="color:{derived.avgRULDays<30?OB.red:derived.avgRULDays<90?OB.amber:OB.green}">{derived.avgRULDays.toFixed(0)} days</span></div>
+            </div>
+          </div>
+          <div class="pnl">
+            <div class="ph"><h2>🛥 HULL & HYBRID PROPULSION</h2>
+              <span class="ptag pt-t">ISO 19030</span>
+              <span class="ptag" style="color:{OB.cyan};background:rgba(0,200,255,.08)">{derived.propMode}</span>
+            </div>
+            <div class="rdts">
+              <div class="ro"><span class="ro-l">Coating Age</span><span class="ro-v">{derived.hullCoatingAge} mo</span></div>
+              <div class="ro"><span class="ro-l">ΔR/R Fouling</span><span class="ro-v" style="color:{derived.hullDeltaRR>10?OB.red:derived.hullDeltaRR>5?OB.amber:OB.green}">{derived.hullDeltaRR.toFixed(1)}%</span><div class="ro-bar"><div class="ro-bf" style="width:{Math.min(100,derived.hullDeltaRR*5)}%;background:{derived.hullDeltaRR>10?OB.red:derived.hullDeltaRR>5?OB.amber:OB.green}"></div></div></div>
+              <div class="ro"><span class="ro-l">Coating Type</span><span class="ro-v">{telemetry.hull_propulsion?.coating?.type ?? 'SPC'}</span></div>
+              <div class="ro"><span class="ro-l">Clean ROI</span><span class="ro-v ro-green">${(telemetry.hull_propulsion?.cleaning_roi?.annual_savings ?? 0).toFixed(0)}/yr</span></div>
+              <div class="ro" style="border-top:1px solid var(--n-b);margin-top:2px;padding-top:2px"><span class="ro-l" style="font-weight:700;color:var(--n-ts)">CODLAG HYBRID</span></div>
+              <div class="ro"><span class="ro-l">Battery SOC</span><span class="ro-v" style="color:{derived.batterySOC>50?OB.green:derived.batterySOC>20?OB.amber:OB.red}">{derived.batterySOC.toFixed(0)}%</span><div class="ro-bar"><div class="ro-bf" style="width:{derived.batterySOC}%;background:{derived.batterySOC>50?OB.green:derived.batterySOC>20?OB.amber:OB.red}"></div></div></div>
+              <div class="ro"><span class="ro-l">Motor Power</span><span class="ro-v">{(telemetry.hull_propulsion?.hybrid?.motor_kw ?? 0).toFixed(0)} kW</span></div>
+              <div class="ro"><span class="ro-l">Fuel Saving</span><span class="ro-v ro-green">{(telemetry.hull_propulsion?.hybrid?.fuel_saving_pct ?? 0).toFixed(1)}%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLIND SPOTS + HUMAN-AI (Engine / Settings) -->
+        <div class="r2" style:display={currentView === 'engine' || currentView === 'settings' ? 'grid' : 'none'}>
+          <div class="pnl">
+            <div class="ph"><h2>🔍 SYSTEMIC BLIND SPOTS</h2>
+              <span class="ptag" style="color:{derived.blindSpotRisk>60?OB.red:derived.blindSpotRisk>30?OB.amber:OB.green};background:rgba({derived.blindSpotRisk>60?'255,51,68':derived.blindSpotRisk>30?'255,170,51':'34,255,136'},.08)">RISK {derived.blindSpotRisk.toFixed(0)}</span>
+            </div>
+            <div class="rdts">
+              <div class="ro"><span class="ro-l">CUSUM Drift</span><span class="ro-v" style="color:{derived.degradationDrift>5?OB.red:derived.degradationDrift>2?OB.amber:OB.green}">{derived.degradationDrift.toFixed(2)}</span><div class="ro-bar"><div class="ro-bf" style="width:{Math.min(100,derived.degradationDrift*10)}%;background:{derived.degradationDrift>5?OB.red:OB.amber}"></div></div></div>
+              <div class="ro"><span class="ro-l">Micro-Climate</span><span class="ro-v">{telemetry.blind_spots?.micro_climate?.zone ?? 'Open Sea'}</span></div>
+              <div class="ro"><span class="ro-l">KE Spike</span><span class="ro-v" style="color:{(telemetry.blind_spots?.kinetic_spike?.detected ?? false)?OB.red:OB.green}">{(telemetry.blind_spots?.kinetic_spike?.detected ?? false)?'DETECTED':'CLEAR'}</span></div>
+              <div class="ro"><span class="ro-l">Sync Status</span><span class="ro-v">{(telemetry.blind_spots?.sync?.all_synced ?? true)?'ALL SYNCED':'DRIFT'}</span></div>
+              <div class="ro"><span class="ro-l">Causal Top</span><span class="ro-v ro-cyan">{telemetry.blind_spots?.causal?.top_cause ?? 'N/A'}</span></div>
+              <div class="ro"><span class="ro-l">Variance Ratio</span><span class="ro-v">{(telemetry.blind_spots?.causal?.variance_ratio ?? 0).toFixed(2)}</span></div>
+            </div>
+          </div>
+          <div class="pnl">
+            <div class="ph"><h2>🤝 HUMAN-AI COLLABORATION</h2>
+              <span class="ptag" style="color:{derived.aiConfidence==='HIGH'?OB.green:derived.aiConfidence==='MEDIUM'?OB.amber:OB.red};background:rgba({derived.aiConfidence==='HIGH'?'34,255,136':derived.aiConfidence==='MEDIUM'?'255,170,51':'255,51,68'},.08)">{derived.aiConfidence} CONF</span>
+              <span class="ptag pt-t">SOLAS</span>
+            </div>
+            <div class="rdts">
+              <div class="ro"><span class="ro-l">Confidence</span><span class="ro-v" style="color:{derived.aiConfidence==='HIGH'?OB.green:derived.aiConfidence==='MEDIUM'?OB.amber:OB.red}">{derived.aiConfidence}</span></div>
+              <div class="ro"><span class="ro-l">Connectivity</span><span class="ro-v ro-cyan">{derived.connectivityType}</span></div>
+              <div class="ro"><span class="ro-l">Bandwidth</span><span class="ro-v">{(telemetry.human_ai_collaboration?.connectivity?.bandwidth_kbps ?? 0).toFixed(0)} kbps</span></div>
+              <div class="ro"><span class="ro-l">SHAP Top Factor</span><span class="ro-v ro-purple">{derived.shapTopFactor}</span></div>
+              <div class="ro"><span class="ro-l">Dist Shift</span><span class="ro-v" style="color:{(telemetry.human_ai_collaboration?.distribution_shift?.detected ?? false)?OB.red:OB.green}">{(telemetry.human_ai_collaboration?.distribution_shift?.detected ?? false)?'DETECTED':'STABLE'}</span></div>
+              <div class="ro"><span class="ro-l">Override</span><span class="ro-v" style="color:{solasOverrideActive?OB.red:OB.green}">{solasOverrideActive?'ARMED':'SAFE'}</span></div>
+              <div class="ro"><span class="ro-l">Advisory</span><span class="ro-v" style="font-size:6px">{telemetry.human_ai_collaboration?.explainability?.nl_advisory ?? 'Nominal'}</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EEXI COMPLIANCE (Compliance view) -->
+        <div class="pnl" style:display={currentView === 'compliance' || currentView === 'tactical' ? 'block' : 'none'}>
+          <div class="ph hero-ph"><h2>⚖ EEXI COMPLIANCE ENGINE</h2>
+            <span class="ptag pt-t">MEPC.328(76)</span>
+            <span class="ptag" style="color:{derived.eexiCompliant?OB.green:OB.red};background:rgba({derived.eexiCompliant?'34,255,136':'255,51,68'},.12)">{derived.eexiCompliant?'COMPLIANT':'NON-COMPLIANT'}</span>
+            <span class="ptag">CII {derived.ciiEnhancedRating}</span>
+          </div>
+          <div class="eexi-grid">
+            <div class="eexi-card">
+              <span class="eexi-label">EEXI ATTAINED</span>
+              <span class="eexi-big" style="color:{derived.eexiCompliant?OB.green:OB.red}">{derived.eexiAttained.toFixed(2)}</span>
+              <span class="eexi-unit">gCO₂/t·nm</span>
+            </div>
+            <div class="eexi-card">
+              <span class="eexi-label">EEXI REQUIRED</span>
+              <span class="eexi-big" style="color:{OB.teal}">{derived.eexiRequired.toFixed(2)}</span>
+              <span class="eexi-unit">gCO₂/t·nm</span>
+            </div>
+            <div class="eexi-card">
+              <span class="eexi-label">MARGIN</span>
+              <span class="eexi-big" style="color:{derived.eexiRequired>0?((derived.eexiRequired-derived.eexiAttained)/derived.eexiRequired*100>0?OB.green:OB.red):OB.textSec}">{derived.eexiRequired>0?((derived.eexiRequired-derived.eexiAttained)/derived.eexiRequired*100).toFixed(1):'—'}%</span>
+              <span class="eexi-unit">buffer</span>
+            </div>
+            <div class="eexi-card">
+              <span class="eexi-label">CII RATING</span>
+              <span class="eexi-big" style="color:{ciiColor(derived.ciiEnhancedRating)}">{derived.ciiEnhancedRating}</span>
+              <span class="eexi-unit">2023-2030</span>
+            </div>
+          </div>
+          <div class="rdts" style="padding:2px 6px">
+            <div class="ro"><span class="ro-l">CF (HFO)</span><span class="ro-v">{CARBON_FACTOR}</span></div>
+            <div class="ro"><span class="ro-l">SFC</span><span class="ro-v">185 g/kWh</span></div>
+            <div class="ro"><span class="ro-l">MCR</span><span class="ro-v">{DESIGN_POWER_KW} kW</span></div>
+            <div class="ro"><span class="ro-l">DWT</span><span class="ro-v">2,350 t</span></div>
+            <div class="ro"><span class="ro-l">EPL Applied</span><span class="ro-v" style="color:{(telemetry.eexi_compliance?.eexi?.epl_applied ?? false)?OB.green:OB.textDim}">{(telemetry.eexi_compliance?.eexi?.epl_applied ?? false)?'YES':'NO'}</span></div>
+            <div class="ro"><span class="ro-l">IMO DCS</span><span class="ro-v ro-teal">MEPC.278(70)</span></div>
+            <div class="ro"><span class="ro-l">Annual Reduction</span><span class="ro-v">{(telemetry.eexi_compliance?.cii_tracker?.annual_reduction_pct ?? 2).toFixed(1)}%</span></div>
+          </div>
+        </div>
+
         <!-- STATUS BAR -->
         <div class="sbar">
           <span class="sb"><span class="sbd" class:sb-on={connected}></span> WS {connected?'ONLINE':'OFFLINE'}</span>
@@ -1778,4 +1971,18 @@
   .denoise-range::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--n-teal);box-shadow:0 0 6px rgba(0,255,204,.4);cursor:pointer;}
   .denoise-range::-moz-range-thumb{width:10px;height:10px;border-radius:50%;background:var(--n-teal);box-shadow:0 0 6px rgba(0,255,204,.4);cursor:pointer;border:none;}
   .denoise-hint{font:400 5.5px var(--mono);color:var(--n-td);margin-top:1px;display:block;}
+
+  /* ── EEXI Compliance Grid ──────────────────────────────────── */
+  .eexi-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:3px;padding:4px 6px;}
+  .eexi-card{display:flex;flex-direction:column;align-items:center;padding:4px 2px;background:var(--n-s2);border-radius:3px;border:1px solid var(--n-b);}
+  .eexi-label{font:600 5.5px var(--mono);color:var(--n-td);letter-spacing:.06em;}
+  .eexi-big{font:700 16px var(--mono);line-height:1.2;}
+  .eexi-unit{font:500 6px var(--mono);color:var(--n-td);}
+
+  /* ── EEXI Compliance Grid ──────────────────────────────────── */
+  .eexi-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:3px;padding:4px 6px;}
+  .eexi-card{display:flex;flex-direction:column;align-items:center;padding:4px 2px;background:var(--n-s2);border-radius:3px;border:1px solid var(--n-b);}
+  .eexi-label{font:600 5.5px var(--mono);color:var(--n-td);letter-spacing:.06em;}
+  .eexi-big{font:700 16px var(--mono);line-height:1.2;}
+  .eexi-unit{font:500 6px var(--mono);color:var(--n-td);}
 </style>
